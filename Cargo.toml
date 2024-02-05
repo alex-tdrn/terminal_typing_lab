@@ -8,3 +8,7 @@ name = "ttl"
 path = "src/main.rs"
 
 [dependencies]
+crossterm = "0.27.0"
+ratatui = { version = "0.26.0", features = ["all-widgets"] }
+unicode-segmentation = "1.11.0"
+unicode-normalization = "0.1.22"
