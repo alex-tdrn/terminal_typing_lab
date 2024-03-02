@@ -39,8 +39,10 @@ pub fn poll_terminal() -> Option<Action> {
         (KeyModifiers::NONE, KeyCode::Esc)
         | (KeyModifiers::CONTROL, KeyCode::Char('c'))
         | (KeyModifiers::CONTROL, KeyCode::Char('q')) => Some(Action::Quit),
-        (KeyModifiers::CONTROL, KeyCode::Char('s')) => Some(Action::ToggleStatistics),
+        (KeyModifiers::CONTROL, KeyCode::Char('s')) => Some(Action::ToggleFrameStatistics),
+        (KeyModifiers::CONTROL, KeyCode::Char('l')) => Some(Action::ToggleLiveTypingStatistics),
         (KeyModifiers::NONE, KeyCode::Tab) => Some(Action::Restart),
+        (KeyModifiers::NONE, KeyCode::Enter) => Some(Action::NextTest),
         (KeyModifiers::NONE, KeyCode::Backspace) | (KeyModifiers::CONTROL, KeyCode::Char('h')) => {
             Some(Action::DeleteCharacter)
         }

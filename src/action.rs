@@ -1,8 +1,10 @@
 pub enum Action {
-    ToggleStatistics,
+    ToggleFrameStatistics,
+    ToggleLiveTypingStatistics,
     CharacterInput(char),
     DeleteCharacter,
     DeleteWord,
     Restart,
+    NextTest,
     Quit,
 }
