@@ -100,25 +100,45 @@ impl Test {
         }
     }
 
+    pub fn start(&mut self) {
+        self.start_time = Some(std::time::Instant::now());
+    }
+
+    pub fn is_started(&self) -> bool {
+        self.start_time.is_some()
+    }
+
+    pub fn finish(&mut self) {
+        self.end_time = Some(std::time::Instant::now());
+    }
+
+    pub fn is_finished(&self) -> bool {
+        self.end_time.is_some()
+    }
+
+    pub fn restart(&mut self) {
+        *self = Test::new(self.target_text.as_str());
+    }
+
     pub fn input(&mut self, c: char) {
-        if self.is_complete() {
+        if self.is_finished() {
             return;
         }
 
-        if self.start_time.is_none() {
-            self.start_time = Some(std::time::Instant::now());
+        if !self.is_started() {
+            self.start();
         }
 
         self.current_text.push(c);
         self.normalize_current_text();
 
-        if self.current_text_grapheme_count >= self.target_text_grapheme_count {
-            self.end_time = Some(std::time::Instant::now());
+        if self.completion() >= 1.0 {
+            self.finish();
         }
     }
 
     pub fn delete_character(&mut self) {
-        if !self.is_complete() {
+        if !self.is_finished() {
             if let Some((byte_offset, _)) = self.current_text.grapheme_indices(true).last() {
                 self.current_text.truncate(byte_offset);
                 self.normalize_current_text();
@@ -127,7 +147,7 @@ impl Test {
     }
 
     pub fn delete_word(&mut self) {
-        if !self.is_complete() {
+        if !self.is_finished() {
             if let Some((byte_offset, _)) = self.current_text.unicode_word_indices().last() {
                 self.current_text.truncate(byte_offset);
                 self.normalize_current_text();
@@ -135,16 +155,29 @@ impl Test {
         }
     }
 
-    pub fn is_complete(&self) -> bool {
-        self.end_time.is_some()
+    pub fn correct_graphemes(&self) -> usize {
+        std::iter::zip(
+            self.target_text.graphemes(true),
+            self.current_text.graphemes(true),
+        )
+        .filter(|(target, current)| target == current)
+        .count()
     }
 
     pub fn accuracy(&self) -> f64 {
-        todo!()
+        self.correct_graphemes() as f64 / self.current_text_grapheme_count as f64
     }
 
     pub fn wpm(&self) -> f64 {
         todo!()
+    }
+
+    pub fn raw_wpm(&self) -> f64 {
+        todo!()
+    }
+
+    pub fn completion(&self) -> f64 {
+        self.current_text_grapheme_count as f64 / self.target_text_grapheme_count as f64
     }
 
     fn normalize_current_text(&mut self) {
