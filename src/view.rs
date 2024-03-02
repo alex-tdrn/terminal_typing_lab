@@ -22,6 +22,10 @@ impl Model {
                 Constraint::Fill(2),
             ])
             .split(main_layout[1]);
+        let middle_lower_layouts = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Fill(1), Constraint::Fill(1)])
+            .split(middle_layouts[2]);
 
         let right_layouts = Layout::default()
             .direction(Direction::Vertical)
@@ -120,7 +124,42 @@ impl Model {
                         Span::styled("quit", action_style),
                     ]),
                 ]),
-                middle_layouts[2],
+                middle_lower_layouts[0],
+            );
+        }
+
+        {
+            let accuracy_style = {
+                let accuracy = self.current_test.accuracy();
+                if accuracy >= 1.0 {
+                    Style::default().fg(Color::Green)
+                } else if accuracy >= 0.75 {
+                    Style::default().fg(Color::Blue)
+                } else if accuracy >= 0.5 {
+                    Style::default().fg(Color::Yellow)
+                } else if accuracy >= 0.25 {
+                    Style::default().fg(Color::Red)
+                } else {
+                    Style::default().fg(Color::Gray)
+                }
+            };
+
+            frame.render_widget(
+                Paragraph::new(vec![
+                    Line::from(vec![Span::styled(
+                        format!("Accuracy:{}", self.current_test.accuracy()),
+                        accuracy_style,
+                    )]),
+                    Line::from(vec![Span::styled(
+                        format!("WPM:{}", self.current_test.wpm()),
+                        accuracy_style,
+                    )]),
+                    Line::from(vec![Span::styled(
+                        format!("Raw WPM:{}", self.current_test.raw_wpm()),
+                        accuracy_style,
+                    )]),
+                ]),
+                middle_lower_layouts[1],
             );
         }
     }

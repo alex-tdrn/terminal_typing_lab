@@ -165,15 +165,29 @@ impl Test {
     }
 
     pub fn accuracy(&self) -> f64 {
-        self.correct_graphemes() as f64 / self.current_text_grapheme_count as f64
+        if self.current_text_grapheme_count == 0 {
+            0.0
+        } else {
+            self.correct_graphemes() as f64 / self.current_text_grapheme_count as f64
+        }
+    }
+
+    pub fn duration(&self) -> std::time::Duration {
+        if let Some(start_time) = self.start_time {
+            self.end_time
+                .unwrap_or(std::time::Instant::now())
+                .duration_since(start_time)
+        } else {
+            std::time::Duration::default()
+        }
     }
 
     pub fn wpm(&self) -> f64 {
-        todo!()
+        self.calculate_wpm(self.correct_graphemes())
     }
 
     pub fn raw_wpm(&self) -> f64 {
-        todo!()
+        self.calculate_wpm(self.current_text_grapheme_count)
     }
 
     pub fn completion(&self) -> f64 {
@@ -183,5 +197,15 @@ impl Test {
     fn normalize_current_text(&mut self) {
         self.current_text = self.current_text.nfc().to_string();
         self.current_text_grapheme_count = self.current_text.graphemes(true).count();
+    }
+
+    fn calculate_wpm(&self, grapheme_count: usize) -> f64 {
+        let duration_in_seconds = self.duration().as_secs_f64();
+        if duration_in_seconds > 0.0 {
+            let correct_words = grapheme_count as f64 / 5.0;
+            correct_words * 60.0 / duration_in_seconds
+        } else {
+            0.0
+        }
     }
 }
